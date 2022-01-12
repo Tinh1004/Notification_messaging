@@ -42,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void registerNotification() async {
     await Firebase.initializeApp();
+
     FirebaseMessaging.instance.getToken().then((token){
       print('FCM TOKEN');
       print(token);
@@ -81,6 +82,22 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void removeItem(var index){
+    List<PushNotification> _newList = _listNotification;
+    var n = _newList.removeAt(index);
+    // print(n.title);
+    setState(() {
+      _listNotification = _newList;
+    });
+  }
+
+  void removeItemAll(){
+    print("Clear Notification");
+    setState(() {
+      _listNotification = [];
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -97,13 +114,19 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: ListView.separated(
+        physics: BouncingScrollPhysics(),
         padding: const EdgeInsets.all(8),
         itemCount: _listNotification.length,
         itemBuilder: (BuildContext context, int index) {
-          return CardNotification(_listNotification[index].title, _listNotification[index].body);
+          return CardNotification(_listNotification[index].title, _listNotification[index].body, index, removeItem);
         },
         separatorBuilder: (BuildContext context, int index) => const Divider(),
-      )
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => removeItemAll(),
+        backgroundColor: Colors.red,
+        child: const Icon(Icons.remove_circle_outline),
+      ),
     );
   }
 }

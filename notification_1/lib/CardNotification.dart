@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 class CardNotification extends StatefulWidget {
+  var index;
   var title;
   var body;
-  CardNotification(@required this.title, @required this.body){}
+  var _press;
+  CardNotification(@required this.title, @required this.body, @required this.index, @required this._press){}
 
   @override
   _CardNotificationState createState() => _CardNotificationState();
@@ -14,8 +16,6 @@ class _CardNotificationState extends State<CardNotification> {
   Widget build(BuildContext context) {
     return Container(
       height: 50,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -35,10 +35,18 @@ class _CardNotificationState extends State<CardNotification> {
                 fontStyle: FontStyle.italic,
                   color: Colors.teal
               ),
+            ),
+            IconButton(
+                onPressed: ()=>{
+                  print(widget.title),
+                  widget._press(widget.index),
+                },
+                icon: Icon(
+                Icons.highlight_remove_outlined, color: Colors.red
+            )
             )
           ],
         ),
-      ),
     );
   }
 }
