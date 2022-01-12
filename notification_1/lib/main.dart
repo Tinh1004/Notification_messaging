@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:notification_1/CardNotification.dart';
+import 'package:notification_1/model/PushNotification.dart';
 
 
 void main() {
@@ -31,9 +33,12 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+Future _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Handling a background message: ${message.messageId}");
+}
 
-  late final FirebaseMessaging _messaging;
+class _MyHomePageState extends State<MyHomePage> {
+  List<PushNotification> _listNotification  = [];
 
   void registerNotification() async {
     await Firebase.initializeApp();
@@ -42,7 +47,38 @@ class _MyHomePageState extends State<MyHomePage> {
       print(token);
       print('end.');
     });
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+    FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+      print("message recieved");
+      print(event.notification!.title);
+      print(event.notification!.body);
+      PushNotification newNotification = PushNotification(
+        title: event.notification?.title,
+        body: event.notification?.body,
+      );
+      setState(() {
+        _listNotification = List.from(_listNotification)
+          ..add(newNotification);
+      });
+
+      // showDialog(
+      //     context: context,
+      //     builder: (BuildContext context) {
+      //       return AlertDialog(
+      //         title: Text("Notification"),
+      //         content: Text(event.notification!.body!),
+      //         actions: [
+      //           TextButton(
+      //             child: Text("Ok"),
+      //             onPressed: () {
+      //               Navigator.of(context).pop();
+      //             },
+      //           )
+      //         ],
+      //       );
+      //     });
+    });
   }
 
   @override
@@ -60,9 +96,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
         title: Text(widget.title),
       ),
-      body: Center(
-
-      ),
+      body: ListView.separated(
+        padding: const EdgeInsets.all(8),
+        itemCount: _listNotification.length,
+        itemBuilder: (BuildContext context, int index) {
+          return CardNotification(_listNotification[index].title, _listNotification[index].body);
+        },
+        separatorBuilder: (BuildContext context, int index) => const Divider(),
+      )
     );
   }
 }
