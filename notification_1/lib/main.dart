@@ -50,6 +50,21 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage event) {
+      print("message recieved");
+      print(event.notification!.title);
+      print(event.notification!.body);
+      PushNotification newNotification = PushNotification(
+        title: event.notification?.title,
+        body: event.notification?.body,
+      );
+      setState(() {
+        _listNotification = List.from(_listNotification)
+          ..add(newNotification);
+      });
+
+    });
+
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
       print("message recieved");
       print(event.notification!.title);
@@ -63,22 +78,23 @@ class _MyHomePageState extends State<MyHomePage> {
           ..add(newNotification);
       });
 
-      // showDialog(
-      //     context: context,
-      //     builder: (BuildContext context) {
-      //       return AlertDialog(
-      //         title: Text("Notification"),
-      //         content: Text(event.notification!.body!),
-      //         actions: [
-      //           TextButton(
-      //             child: Text("Ok"),
-      //             onPressed: () {
-      //               Navigator.of(context).pop();
-      //             },
-      //           )
-      //         ],
-      //       );
-      //     });
+
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(event.notification!.title.toString()),
+              content: Text(event.notification!.body!),
+              actions: [
+                TextButton(
+                  child: Text("Ok"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            );
+          });
     });
   }
 
